@@ -38,7 +38,6 @@ jupyter: python3
 
 ---
 
-
 ## 데이터셋 정보 {data-background-image="assets/bg.png"}
 
 ```{python}
@@ -96,17 +95,17 @@ mer_dat.info()
 
 ## 1. 출발 시각에 따른 출발 지연 시간 {data-background-image="assets/bg.png"}
 
-``` {.python code-line-numbers="|2-3|5-6|8-10"}
+``` {.python code-line-numbers="|2-3|5-6|8-10|22-26"}
 
 mer_dat['hour'] = mer_dat['time_hour'].str.extract(r'(\d{2}):').astype(int)
-set(mer_dat['hour']) # 6~8시는 출발하지 않는다. 
+set(mer_dat['hour']) # 비행기는 6~8시에는 출발하지 않는다. 
 
-y = mer_dat.groupby('hour')['dep_delay'].mean().dropna() # na값인 5시 데이터 제거
+y = mer_dat.groupby('hour')['dep_delay'].mean().dropna() # 결측치인 5시 데이터 제거
 x = y.index.astype(int)
 
 x_reordered = np.concatenate([x[x >= 9], x[x < 9] + 24])
 y_reordered = np.concatenate([y[x >= 9], y[x < 9]])
-# 9시부터 시작할 수 있도록 정렬
+# 출발 시간이 9시부터 시작할 수 있도록 x축 정렬
 
 plt.scatter(x_reordered, y_reordered)
 plt.xlabel('dep_hour')
@@ -122,6 +121,7 @@ max_idx = np.argmax(y_reordered)
 max_x = x_reordered[max_idx]
 max_y = y_reordered[max_idx]
 plt.scatter(max_x, max_y, color='red')
+# 최대값을 가지는 좌표를 빨간색 점으로 표시
 
 plt.show()
 ```
@@ -132,9 +132,9 @@ plt.show()
 
 ```{python}
 mer_dat['hour'] = mer_dat['time_hour'].str.extract(r'(\d{2}):').astype(int)
-set(mer_dat['hour']) # 6~8시는 출발하지 않는다. 
+set(mer_dat['hour'])
 
-y = mer_dat.groupby('hour')['dep_delay'].mean().dropna() # na값인 5시 데이터 제거
+y = mer_dat.groupby('hour')['dep_delay'].mean().dropna()
 x = y.index.astype(int)
 
 x_reordered = np.concatenate([x[x >= 9], x[x < 9] + 24])
@@ -165,7 +165,7 @@ plt.show()
 
 ## 2. 계절별 출발 지연 시간 {data-background-image="assets/bg.png"}
 
-``` {.python code-line-numbers="|2-6"}
+``` {.python code-line-numbers="|2-6|9-13"}
 #| echo: true
 spring = mer_dat.loc[(mer_dat['month'] >= 3) & (mer_dat['month'] <= 5)]
 summer = mer_dat.loc[(mer_dat['month'] >= 6) & (mer_dat['month'] <= 8)]
@@ -178,6 +178,7 @@ delays = [spring['dep_delay'].mean(),
           summer['dep_delay'].mean(),
           autumn['dep_delay'].mean(),
           winter['dep_delay'].mean()]
+# 각 계절별 평균 출발 지연 시간을 y축으로 설정
 colors = ['#FFB6C1', '#87CEEB', '#D2691E', '#4682B4']
 
 plt.bar(seasons, delays, color = colors)
@@ -234,6 +235,7 @@ delays = [spring['dep_delay'].mean(),
           winter['dep_delay'].mean()]
 colors = ['#A9A9A9', '#87CEEB', '#A9A9A9', '#A9A9A9']
 
+plt.figure(figsize=(7, 4))
 plt.bar(seasons, delays, color = colors)
 plt.ylabel('dep_delay')
 plt.xlabel("season") 
@@ -264,6 +266,7 @@ delays = [spring['dep_delay'].mean(),
           winter['dep_delay'].mean()]
 colors = ['#A9A9A9', '#A9A9A9', '#A9A9A9', '#4682B4']
 
+plt.figure(figsize=(7, 4))
 plt.bar(seasons, delays, color = colors)
 plt.ylabel('dep_delay')
 plt.xlabel("season") 
@@ -271,7 +274,7 @@ plt.title('Correlate season with dep_delay')
 plt.show()
 ```
 :::{.fragment}
-<img src="assets/snow.png" style="position: absolute; top: 10px; width: 20%; left: -200px;">
+<img src="assets/snow.png" style="position: absolute; top: 10px; width: 20%; left: -150px;">
 <li>겨울에는 눈, 얼음, 결빙 등으로 인해 활주로가 이상적인<br> 상태를 유지하기 힘들다.</li>
 
 :::
@@ -294,6 +297,7 @@ delays = [spring['dep_delay'].mean(),
           winter['dep_delay'].mean()]
 colors = ['#FFB6C1', '#A9A9A9', '#D2691E', '#A9A9A9']
 
+plt.figure(figsize=(7, 4))
 plt.bar(seasons, delays, color = colors)
 plt.ylabel('dep_delay')
 plt.xlabel("season") 
@@ -310,7 +314,7 @@ plt.show()
 
 ## 3. 비행기 제작 연도별 출발 지연 시간 {data-background-image="assets/bg.png"}
 
-``` {.python code-line-numbers="|5-10"}
+``` {.python code-line-numbers="|5-10|16-17"}
 #| echo: true
 delay_by_year = mer_dat.groupby("year_y")["dep_delay"].mean().reset_index()
 
@@ -320,11 +324,14 @@ sns.regplot(
     y = delay_by_year["dep_delay"],
     line_kws={"color": "red"},
     scatter_kws={"s": 50, "alpha": 0.5}
-    ) # 선형 회귀 직선 추가
+    ) # 추정 회귀 직선 추가
 plt.xlabel('manufacturing year')
 plt.ylabel('Average Departure Delay (minutes)')
 plt.title('Correlate manufacturing year with Average Departure Delay')
 plt.grid(True)
+
+correlation = delay_by_year[["year_y", "dep_delay"]].corr().iloc[0, 1]
+# 상관계수값 계산
 ```
 
 ---
@@ -334,7 +341,7 @@ plt.grid(True)
 ```{python}
 delay_by_year = mer_dat.groupby("year_y")["dep_delay"].mean().reset_index()
 
-plt.figure(figsize=(10, 5))
+plt.figure(figsize=(8, 3))
 sns.regplot(
     x = delay_by_year["year_y"],
     y = delay_by_year["dep_delay"],
@@ -345,9 +352,12 @@ plt.xlabel('manufacturing year')
 plt.ylabel('Average Departure Delay (minutes)')
 plt.title('Correlate manufacturing year with Average Departure Delay')
 plt.grid(True)
+
+correlation = delay_by_year[["year_y", "dep_delay"]].corr().iloc[0, 1]
 ```
 
-- 제작 시기가 <span class="red-color">현재에 가까워질수록</span> 출발 지연 시간이 늘어남
+- 상관계수의 값은 0.46으로 중간 정도의 양의 상관관계를 가짐
+- 회귀 직선의 추이를 볼 때, 제작 시기가 <span class="red-color">현재에 가까워질수록</span> 출발 지연 시간이 늘어남
 
 ------------------------------------------------------------------------
 
@@ -386,7 +396,7 @@ plt.figure(figsize=(10, 5))
 sns.barplot(x="engine", y="speed_mph", data=engine_speed, palette="coolwarm")
 
 plt.xlabel("Engine Type")
-plt.ylabel("Average Speed (mph)") # miles per hour
+plt.ylabel("Average Speed (mph)")
 plt.title("Average Speed by Engine Type")
 plt.xticks(rotation=45)
 plt.grid(axis="y", linestyle="--", alpha=0.7)
