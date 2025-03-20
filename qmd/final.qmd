@@ -26,23 +26,6 @@ jupyter: python3
 
 ::: {.incremental}
 
-1. 분석 목표
-2. 데이터 설명  
-3. 시간대별 지연 분석
-4. 계절별 지연 분석
-5. 날씨별 지연 분석
-6. 추가 인사이트 도출
-
-
-:::
-</div>
-
----
-
-
-## 2. 분석 목표 {data-background-image="assets/bg.png"}
-
-
 1. 항공기 지연 패턴 분석
 2. 항공기 지연 요인 분석
    - 시간대별
@@ -50,9 +33,13 @@ jupyter: python3
    - 날씨별
 3. 추가 인사이트 도출
 
------------------------------------------------------------------------------------
 
-## 2. 데이터셋 정보 {data-background-image="assets/bg.png"}
+:::
+</div>
+
+---
+
+## 분석 목표 {data-background-image="assets/bg.png"}
 
 ```{python}
 
@@ -65,11 +52,9 @@ from nycflights13 import flights, planes, weather
 
 ![](https://docs.ropensci.org/dittodb/articles/relational-nycflights.svg)
 
-<div style="margin-top: 1rem; padding-left: 1rem; padding-bottom: 1.6rem;">
-  <li style="font-size: 1.6rem; margin-top: 5px; font-family: Pretendard !important;"> 데이터 구성: 2013년 뉴욕에서 출발한 모든 항공편의 운항 데이터 </li>
-  <li style="font-size: 1.6rem; margin-top: 5px; font-family: Pretendard !important;"> 포함된 정보: 항공사, 공항, 날씨, 항공기 메타데이터 포함 </li>
-  <li style="font-size: 1.6rem; margin-top: 5px; font-family: Pretendard !important;"> 분석 대상: `flights`, `planes`, `weather` 중심 </li>
-</div>
+- 비행기 관련 데이터를 활용
+- 출발 지연의 패턴 및 요인 분석
+
 
 ---
 
@@ -904,7 +889,6 @@ data[data["engines"] == 3]["seats"].describe()
 ::: {.fragment}
 
 <li style="font-size: 24px;">데이터 개수가 너무 적어서 사분위수를 나누기 어려움</li>
-<li style="font-size: 24px;">중앙값(50%)가 12명, 75%는 379명, 평균은 169명</li>
 <li style="font-size: 24px;">데이터가 극단적으로 나뉘어 있음 (12명 vs. 379명)</li>
 :::
 
