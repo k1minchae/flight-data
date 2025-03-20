@@ -14,55 +14,13 @@ Merge 사용해서 flights 와 planes 병합한 데이터로
 
 # 데이터 불러오기
 from nycflights13 import flights, planes, weather, airports
-len(airports['faa'].unique())
-flights['origin'].unique()
-# 데이터 확인
-flights.info()
-planes.info()
-flights.head()
-planes.head()
-weather.head()
-weather.info()
 
-# 전처리 (형변환)
-weather['time_hour'] = pd.to_datetime(weather['time_hour'])
-
-weather['origin'].unique() # 'EWR', 'JFK', 'LGA'
-'''
-EWR: 뉴어크 리버티 국제공항
-JFK: 존 F. 케네디 국제공항
-LGA: 라과디아 공항
-'''
 
 flights_weather = pd.merge(flights, weather, on=['year', 'month', 'day', 'hour', 'origin'], how='inner')
-flights_weather.isna().sum()
 
 # 결측치 제거
 flights_weather = flights_weather.loc[~((flights_weather['dep_delay'].isna()) & (flights_weather['arr_delay'].isna())), :]
 
-# 공항 이름 추가
-def replace_airport_code(row):
-    if row == 'EWR':
-        return 'Newark Liberty International Airport'
-    if row == 'JFK':
-        return 'John F. Kennedy International Airport'
-    if row == 'LGA':
-        return 'LaGuardia Airport'
-    return 'Unknown'
-
-# 공항 이름 추가 적용
-flights_weather['airport'] = flights_weather['origin'].apply(replace_airport_code)
-
-
-# 공항별 날씨 데이터
-weather_EWR = weather.loc[weather['origin'] == 'EWR', :]
-weather_JFK = weather.loc[weather['origin'] == 'JFK', :]
-weather_LGA = weather.loc[weather['origin'] == 'LGA', :]
-
-# 중앙값 구하기
-wind_gust_median = flights_weather['wind_gust'].median()
-wind_speed_median = flights_weather['visib'].median()
-visib_median = flights_weather['wind_speed'].median()
 
 # 사분위수 계산
 q1_gust, q3_gust = flights_weather['wind_gust'].quantile([0.25, 0.75])
@@ -89,7 +47,7 @@ y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])
 plt.figure(figsize=(6, 4))
 plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
 
-# 그래프 스타일 개선
+# 그래프 스타일 적용
 plt.xlabel("Weather Condition")
 plt.ylabel("Average Departure Delay (minutes)")
 plt.title("Impact of Weather on Departure Delay")
@@ -100,16 +58,7 @@ plt.grid(axis='y', linestyle='--', alpha=0.6)
 plt.show()
 
 
-# 날씨 데이터 시각화
-plt.figure(figsize=(12, 5))
-sns.scatterplot(flights_weather, x='visib', y='arr_delay', hue='origin')
-
-# 데이터 특성 확인
-planes['type'].unique() # 'Fixed wing multi engine', 'Fixed wing single engine','Rotorcraft'
-planes['engine'].unique()
-planes['manufacturer'].unique()
-planes['model'].unique()   # 127
-planes['speed'].isna().sum() # 거의다 Nan값
+##################################################################
 
 
 # Merge 한 데이터
@@ -134,6 +83,11 @@ sns.kdeplot(four_engine, bw_method=0.4, shade=True)
 plt.xlabel("Production year")
 plt.legend(["1 engine", "2 engines", "3 engines", "4 engines"])
 plt.title("Production year by Engine cnt")
+
+
+
+###여기까지################################################
+##########################################################
 
 
 # 항공사별 좌석 수 (대중적인 항공사가 뭔지?)
