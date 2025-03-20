@@ -63,18 +63,46 @@ from nycflights13 import flights, planes, weather
 ---
 
 
-## 분석 목표 {data-background-image="assets/bg.png"}
 
+## 데이터 병합 {data-background-image="assets/bg.png"}
 
+- 다음과 같이 비행장 데이터 `flights`와 `planes`를 병합한 데이터를 생성합니다.
 
+``` {.python code-line-numbers="|9"}
+#| echo: true
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from nycflights13 import flights, planes
 
+mer_dat = pd.merge(flights, planes, on='tailnum', how='left')
+mer_dat.info()
+```
+
+------------------------------------------------------------------------
+
+## 데이터 병합 {data-background-image="assets/bg.png"}
+
+- 병합된 데이터인 `mer_dat`은 다음과 같은 변수들을 가지고 있습니다.
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from nycflights13 import flights, planes
+
+mer_dat = pd.merge(flights, planes, on='tailnum', how='left')
+mer_dat.info()
+```
+
+------------------------------------------------------------------------
 
 
 ## 1. 시간대별 지연 분석 {data-background-image="assets/bg.png"}
 
-```{python}
-#| code-fold: false
-#| echo: true
+``` {.python code-line-numbers="|1-3|5-13|14"}
 # 전처리: 출발시간, 도착시간, 지연시간이 nan 일 경우 제거
 flights = flights.dropna(
     subset=['dep_time', 'arr_time', 'arr_delay', 'dep_delay', 'air_time'])
@@ -89,6 +117,7 @@ def divide_hour(hour):
         return 'dinner'
     return 'dawn'
 flights['time_of_day'] = flights['hour'].apply(divide_hour)
+
 ```
 
 ::::: columns
@@ -105,6 +134,19 @@ flights['time_of_day'] = flights['hour'].apply(divide_hour)
 :::{.column width="50%"}
 
 ```{python}
+flights = flights.dropna(
+    subset=['dep_time', 'arr_time', 'arr_delay', 'dep_delay', 'air_time'])
+
+# 시간대 나누는 함수
+def divide_hour(hour):
+    if 6 <= hour < 12:
+        return 'morning'
+    if 12 <= hour < 18:
+        return 'lunch'
+    if 18 <= hour < 24:
+        return 'dinner'
+    return 'dawn'
+flights['time_of_day'] = flights['hour'].apply(divide_hour)
 result = flights.loc[:, ['hour', 'time_of_day']].head(3)
 print(result)
 ```
@@ -170,10 +212,7 @@ plt.show()
 
 :::::columns
 :::{.column width="55%"}
-```{python}
-#| eval: false
-#| echo: true
-
+``` {.python code-line-numbers="|1-5|6-11|"}
 # 15분 이상 지연된 비행기들
 delayed = flights.loc[flights['dep_delay'] >= 15, :]
 
@@ -235,7 +274,24 @@ plt.show()
 <h6 class="subtitle-style"> 데이터 전처리 과정 </h6>
 
 ```{python}
-#| echo: true
+# 출발 시간 기준으로 정렬
+sort_ = flights.sort_values(['year','month', 'day', 'hour', 'minute'], ascending=True)
+
+# 같은 날 이전 항공편의 도착 지연 정보 추가
+sort_['prev_arr_delay'] = sort_.groupby(['year', 'month', 'day', 'flight'])['arr_delay'].shift(1)
+
+# 해당 날에 첫 항공편이거나, 유일한 항공편 제거
+sort_ = sort_.dropna(subset='prev_arr_delay')
+
+# comprehension 사용으로 연쇄 지연 count
+days = ['dawn', 'morning', 'lunch', 'dinner']
+delay_counts = {time: len(sort_.loc[(sort_['time_of_day'] == time) & 
+                                  (sort_['dep_delay'] >= 15) & 
+                                  (sort_['prev_arr_delay'] >= 15), :]) 
+                for time in days}
+```
+
+``` {.python code-line-numbers="|1-2|4-5|7-8|10-15|"}
 # 출발 시간 기준으로 정렬
 sort_ = flights.sort_values(['year','month', 'day', 'hour', 'minute'], ascending=True)
 
@@ -260,10 +316,8 @@ delay_counts = {time: len(sort_.loc[(sort_['time_of_day'] == time) &
 
 <h6 class="subtitle-style"> 데이터 시각화 </h6>
 :::::columns
-:::{.column width="55%"}
-```{python}
-#| echo: true
-#| eval: false
+:::{.column width="60%"}
+``` {.python code-line-numbers="|6|"}
 # 파이 차트 그리기
 plt.figure(figsize=(7, 7))
 colors = ["#c4b5fd", "#bef264", "#fdba74", "#155e75"]
@@ -278,12 +332,12 @@ plt.legend(days, title="Time Periods", loc="upper right")
 plt.show()
 ```
 :::
-:::{.column width="45%"}
+:::{.column width="40%"}
 ```{python}
 #| echo: false
 #| eval: true
 # 파이 차트 그리기
-plt.figure(figsize=(5, 5))
+plt.figure(figsize=(4.5, 4.5))
 colors = ["#c4b5fd", "#bef264", "#fdba74", "#155e75"]
 plt.pie(delay_counts.values(), 
         labels=days, 
