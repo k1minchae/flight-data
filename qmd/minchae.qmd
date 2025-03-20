@@ -352,3 +352,190 @@ plt.show()
 :::
 :::::
 
+------------------------------------------------------------------
+
+
+
+## 1. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 날씨가 좋은날보다 흐린날, 비행기 지연 시간이 더 길겠지? </h6>
+
+<img src="https://files.oaiusercontent.com/file-7woHZLncGHrB3gVV12cLa8?se=2025-03-20T06%3A28%3A07Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3D7fb64046-611d-433f-b846-4dc7cc292da1.webp&sig=/dfUoZ64q%2BC71ez7fe550odOSuci6FrqBwPEvj9GI7E%3D">
+
+
+---------------------------------------------------
+
+## 1. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+
+
+``` {.python code-line-numbers="|1-2|4-5|7-10|12-17|19-24|"}
+# 데이터 병합 (비행 + 날씨)
+flights_weather = pd.merge(flights, weather, on=['year', 'month', 'day', 'hour', 'origin'], how='inner')
+
+# 결측치 제거
+flights_weather = flights_weather.dropna(subset=['arr_delay', 'dep_delay'])
+
+# 사분위수 계산
+q1_gust, q3_gust = flights_weather['wind_gust'].quantile([0.25, 0.75])
+q1_speed, q3_speed = flights_weather['wind_speed'].quantile([0.25, 0.75])
+q1_visib, q3_visib = flights_weather['visib'].quantile([0.25, 0.75])
+
+# 날씨가 나쁜 경우 (상위 25%의 돌풍 & 바람 속도, 하위 25%의 가시거리)
+bad_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] >= q3_gust) &
+    (flights_weather['wind_speed'] >= q3_speed) &
+    (flights_weather['visib'] <= q1_visib)
+]
+
+# 날씨가 좋은 경우 (하위 25%의 돌풍 & 바람 속도, 상위 25%의 가시거리)
+good_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] <= q1_gust) &
+    (flights_weather['wind_speed'] <= q1_speed) &
+    (flights_weather['visib'] >= q3_visib)
+]
+
+```
+-----------------
+
+```{python}
+#| echo: false
+#| eval: true
+flights_weather = pd.merge(flights, weather, on=['year', 'month', 'day', 'hour', 'origin'], how='inner')
+
+# 결측치 제거
+flights_weather = flights_weather.dropna(subset=['arr_delay', 'dep_delay'])
+
+# 사분위수 계산
+q1_gust, q3_gust = flights_weather['wind_gust'].quantile([0.25, 0.75])
+q1_speed, q3_speed = flights_weather['wind_speed'].quantile([0.25, 0.75])
+q1_visib, q3_visib = flights_weather['visib'].quantile([0.25, 0.75])
+
+# 날씨가 나쁜 경우 (상위 25%의 돌풍 & 바람 속도, 하위 25%의 가시거리)
+bad_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] >= q3_gust) &
+    (flights_weather['wind_speed'] >= q3_speed) &
+    (flights_weather['visib'] <= q1_visib)
+]
+
+# 날씨가 좋은 경우 (하위 25%의 돌풍 & 바람 속도, 상위 25%의 가시거리)
+good_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] <= q1_gust) &
+    (flights_weather['wind_speed'] <= q1_speed) &
+    (flights_weather['visib'] >= q3_visib)
+]
+```
+
+
+
+## 1. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 데이터 시각화 </h6>
+
+``` {.python code-line-numbers="|1-2|"}
+x = ['bad weather', 'good weather']
+y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])]
+# 막대그래프 그리기
+plt.figure(figsize=(6, 4))
+plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
+
+# 그래프 스타일 적용
+plt.xlabel("Weather Condition")
+plt.ylabel("Average Departure Delay (minutes)")
+plt.title("Impact of Weather on Departure Delay")
+plt.ylim(0, max(y) * 1.2)  # Y축 범위를 최대값 기준으로 설정
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+# 그래프 출력
+plt.show()
+```
+
+```{python}
+#| eval: false
+x = ['bad weather', 'good weather']
+y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])]
+# 막대그래프 그리기
+plt.figure(figsize=(6, 4))
+plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
+
+# 그래프 스타일 적용
+plt.xlabel("Weather Condition")
+plt.ylabel("Average Departure Delay (minutes)")
+plt.title("Impact of Weather on Departure Delay")
+plt.ylim(0, max(y) * 1.2)  # Y축 범위를 최대값 기준으로 설정
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+# 그래프 출력
+plt.show()
+```
+
+----------------------------------------
+
+
+## 1. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+:::::columns
+:::{.column width="50%"}
+```{python}
+#| eval: true
+x = ['bad weather', 'good weather']
+y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])]
+# 막대그래프 그리기
+plt.figure(figsize=(6, 4))
+plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
+
+# 그래프 스타일 적용
+plt.xlabel("Weather Condition")
+plt.ylabel("Average Departure Delay (minutes)")
+plt.title("Impact of Weather on Departure Delay")
+plt.ylim(0, max(y) * 1.2)  # Y축 범위를 최대값 기준으로 설정
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+# 그래프 출력
+plt.show()
+```
+:::
+:::{.column width="50%"}
+- 예상대로 날씨가 안좋을때 지연시간이 길어진다.
+- 나쁜 날씨일 때 지연시간이 <span class="red-color">1.74배</span> 정도 길다.
+:::
+:::::
+
+
+----------------------------------------------
+
+
+## 2. 생산년도에 따른 엔진 개수 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 비행기 생산년도와 엔진 개수가 연관이 있을까? </h6>
+
+```{python}
+#| eval: true
+#| echo: true
+# Merge 한 데이터
+data = pd.merge(flights, planes, on='tailnum', how='left')
+data.head()
+
+# 각 비행기 engine 개수별 생산 년도
+one_engine = data.loc[data['engines'] == 1, 'year_y']
+two_engine = data.loc[data['engines'] == 2, 'year_y']
+three_engine = data.loc[data['engines'] == 3, 'year_y']
+four_engine = data.loc[data['engines'] == 4, 'year_y']
+```
+
+
+---------------------------------------------------------------------------
+
+## 2. 생산년도에 따른 엔진 개수 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 데이터 시각화 </h6>
+
+```{python}
+#| echo: false
+plt.figure(figsize=(10, 4))
+sns.kdeplot(one_engine, bw_method=0.4, shade=True)
+sns.kdeplot(two_engine, bw_method=0.4, shade=True)
+sns.kdeplot(three_engine, bw_method=0.4, shade=True)
+sns.kdeplot(four_engine, bw_method=0.4, shade=True)
+plt.xlabel("Production year")
+plt.legend(["1 engine", "2 engines", "3 engines", "4 engines"])
+plt.title("Production year by Engine cnt")
+```

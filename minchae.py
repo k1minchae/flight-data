@@ -19,8 +19,7 @@ from nycflights13 import flights, planes, weather, airports
 flights_weather = pd.merge(flights, weather, on=['year', 'month', 'day', 'hour', 'origin'], how='inner')
 
 # 결측치 제거
-flights_weather = flights_weather.loc[~((flights_weather['dep_delay'].isna()) & (flights_weather['arr_delay'].isna())), :]
-
+flights_weather = flights_weather.dropna(subset=['arr_delay', 'dep_delay'])
 
 # 사분위수 계산
 q1_gust, q3_gust = flights_weather['wind_gust'].quantile([0.25, 0.75])
@@ -65,16 +64,14 @@ plt.show()
 data = pd.merge(flights, planes, on='tailnum', how='left')
 data.head()
 
-
-# # 각 비행기 engine 개수별 생산 년도
+# 각 비행기 engine 개수별 생산 년도
 one_engine = data.loc[data['engines'] == 1, 'year_y']
 two_engine = data.loc[data['engines'] == 2, 'year_y']
 three_engine = data.loc[data['engines'] == 3, 'year_y']
 four_engine = data.loc[data['engines'] == 4, 'year_y']
 
 
-
-# 생산년도에따라 선호하는 엔진의 개수가 달라지는 것을 알 수 있다.
+# 년도에따라 생산되는 엔진의 개수가 달라지는 것을 알 수 있다.
 plt.figure(figsize=(12, 5))
 sns.kdeplot(one_engine, bw_method=0.4, shade=True)
 sns.kdeplot(two_engine, bw_method=0.4, shade=True)
