@@ -1,6 +1,17 @@
 # flight-data 분석 과제
 
-### 환경 설정하기
+**LS빅데이터스쿨 4기 flight-data 분석 실습 과제**
+
+## 참여 인원
+
+| <img src="./readme/seoyeon.jpg" width="100%" height="100"> | <img src="./readme/minchae.jpg" width="100%" height="100"> | <img src="./readme/jaewon.jpg" width="100%" height="100"> | <img src="./readme/sangwon.jpg" width="100%" height="100"> |
+| :--------------------------------------------------------: | :--------------------------------------------------------: | :-------------------------------------------------------: | :--------------------------------------------------------: |
+|                           권서연                           |                           김민채                           |                          박재원                           |                           오상원                           |
+|        -엔진개수와 좌석수 관계 분석<br> - QMD 제작         |      - 시간대별 지연시간 분석 <br> - QMD 제작 및 CSS       |            - 날씨와 지연시간 분석 <br> - 발표             |               - 계절별 지연시간 조사 및 발표               |
+
+<br>
+
+## 환경 설정하기
 
 ```bash
 git remote add upstream https://github.com/k1minchae/flight-data.git
@@ -8,10 +19,6 @@ git remote -v
 git fetch upstream
 git merge upstream/main
 ```
-
-LS빅데이터스쿨 4기 flight-data 분석 실습 과제
-
-**팀원: 권서연, 김민채, 박재원, 오상원**
 
 ![](https://docs.ropensci.org/dittodb/articles/relational-nycflights.svg)
 
@@ -32,13 +39,9 @@ LS빅데이터스쿨 4기 flight-data 분석 실습 과제
 - 시간대별 지연 패턴 확인
 - 날씨별 지연 패턴 확인
 - 계절별 지연 패턴 확인
-- 좌석 수와의 상관 관계 확인
 
 3️⃣ 항공기 특성 분석
 
-- 엔진개수의 선호도 분석
 - 엔진개수별 항공기 특성 분석
 
-4️⃣ 추가 인사이트 도출
-
-- 항공사 별 좌석 수 분석
+<br>
