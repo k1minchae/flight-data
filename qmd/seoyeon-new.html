@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="seoyeon-new_files/libs/clipboard/clipboard.min.js"></script>
+<script src="seoyeon-new_files/libs/clipboard/clipboard.min.js"></script>
 <script src="seoyeon-new_files/libs/quarto-html/tabby.min.js"></script>
 <script src="seoyeon-new_files/libs/quarto-html/popper.min.js"></script>
 <script src="seoyeon-new_files/libs/quarto-html/tippy.umd.min.js"></script>
@@ -187,9 +187,6 @@
       margin-right: 0; 
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-  
-  <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -262,12 +259,12 @@
 <h6 class="subtitle-style">
 가설: 엔진 개수가 많을수록,좌석수가 많아질 것이다
 </h6>
-<div id="ffc7fc7b" class="cell" data-execution_count="2">
+<div id="a2621c66" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a>data <span class="op">=</span> pd.merge(flights, planes, on <span class="op">=</span> <span class="st">"tailnum"</span>, how <span class="op">=</span> <span class="st">"left"</span>)</span>
 <span id="cb1-2"><a href=""></a></span>
 <span id="cb1-3"><a href=""></a>engines_seats <span class="op">=</span> data.groupby(<span class="st">'engines'</span>)[<span class="st">'seats'</span>].mean()</span>
 <span id="cb1-4"><a href=""></a>engines_seats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="156">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>engines
 1.0      4.202085
 2.0    137.699754
@@ -284,7 +281,7 @@ Name: seats, dtype: float64</code></pre>
 <h2>1-2​ 꺾은선 그래프로 시각화</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="8b57c5a6" class="cell" data-execution_count="3">
+<div id="0875bb78" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="co"># 꺾은선 그래프 그리기</span></span>
 <span id="cb3-2"><a href=""></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">5</span>))</span>
 <span id="cb3-3"><a href=""></a>plt.plot(engines_seats.index, engines_seats.values,</span>
@@ -308,7 +305,7 @@ Name: seats, dtype: float64</code></pre>
 </div>
 </div><div class="column" style="width:50%;">
 <div style="padding-top: 0px;">
-<div id="4c4b3582" class="cell" data-execution_count="4">
+<div id="aad1d3c8" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -337,7 +334,7 @@ Name: seats, dtype: float64</code></pre>
 </li>
 </div><div class="column" style="width:50%;">
 <div style="padding-top: 0px; padding-left: 2rem;">
-<div id="b582fa7d" class="cell" data-execution_count="5">
+<div id="a1a741b4" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -353,7 +350,7 @@ Name: seats, dtype: float64</code></pre>
 <h2>2. 박스플롯으로 분포 확인</h2>
 <div class="columns">
 <div class="column" style="margin-top: 15px;">
-<div id="48958dfe" class="cell" data-execution_count="6">
+<div id="9f5c31f1" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
 <span id="cb4-2"><a href=""></a>sns.boxplot(x<span class="op">=</span><span class="st">"engines"</span>, y<span class="op">=</span><span class="st">"seats"</span>, data<span class="op">=</span>data,</span>
 <span id="cb4-3"><a href=""></a>       hue<span class="op">=</span><span class="st">"engines"</span>, palette<span class="op">=</span><span class="st">"Blues"</span>, width<span class="op">=</span><span class="fl">0.5</span>)</span>
@@ -370,7 +367,7 @@ Name: seats, dtype: float64</code></pre>
 왜 이렇게 나타나는지, <code>산점도(Scatter Plot)</code>를 추가해 개별 데이터 분포를 더 자세히 확인해보자!
 </li>
 </div><div class="column" style="width:50%;">
-<div id="15d6d7d2" class="cell" data-execution_count="7">
+<div id="e2c87a57" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -385,7 +382,7 @@ Name: seats, dtype: float64</code></pre>
 <h2>2-2​ 박스플롯에 스캐터플롯 추가</h2>
 <div class="columns">
 <div class="column" style="margin-top: 15px;">
-<div id="a30bcf70" class="cell" data-execution_count="8">
+<div id="484502b8" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
 <span id="cb5-2"><a href=""></a>sns.boxplot(x<span class="op">=</span><span class="st">"engines"</span>, y<span class="op">=</span><span class="st">"seats"</span>, data<span class="op">=</span>data,</span>
 <span id="cb5-3"><a href=""></a>       hue<span class="op">=</span><span class="st">"engines"</span>, palette<span class="op">=</span><span class="st">"Blues"</span>, width<span class="op">=</span><span class="fl">0.5</span>)</span>
@@ -406,7 +403,7 @@ Name: seats, dtype: float64</code></pre>
 <span id="cb5-18"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="9f148dea" class="cell" data-execution_count="9">
+<div id="f0409ac0" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -421,9 +418,9 @@ Name: seats, dtype: float64</code></pre>
 <h2>2-3​ 박스플롯, 스캐터플롯 해석</h2>
 <div class="columns">
 <div class="column" style="margin-top: 0px;">
-<div id="269d8e0c" class="cell" data-execution_count="10">
+<div id="f04a0159" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>data[data[<span class="st">"engines"</span>] <span class="op">==</span> <span class="dv">3</span>][<span class="st">"seats"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="161">
+<div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>count      7.000000
 mean     169.285714
 std      196.169752
@@ -447,7 +444,7 @@ Name: seats, dtype: float64</code></pre>
 </li>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="5c629243" class="cell" data-execution_count="11">
+<div id="549d5917" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -462,9 +459,9 @@ Name: seats, dtype: float64</code></pre>
 <h2>2-3​ 박스플롯, 스캐터플롯 해석</h2>
 <div class="columns">
 <div class="column" style="margin-top: 15px;">
-<div id="92fd1e99" class="cell" data-execution_count="12">
+<div id="ebaeb63c" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>data[data[<span class="st">"engines"</span>] <span class="op">==</span> <span class="dv">4</span>][<span class="st">"seats"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="163">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>count    144.000000
 mean      67.013889
 std      127.272791
@@ -488,7 +485,7 @@ Name: seats, dtype: float64</code></pre>
 </li>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="36a99f76" class="cell" data-execution_count="13">
+<div id="adeac666" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -501,63 +498,18 @@ Name: seats, dtype: float64</code></pre>
 </section>
 <section id="왜-예상과-다를까" class="slide level2" data-background-image="assets/bg.png">
 <h2>3.​ 왜 예상과 다를까?</h2>
-<div id="33a327aa" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>data.loc[</span>
+<div id="ac16b6b1" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>d <span class="op">=</span> data.loc[</span>
 <span id="cb10-2"><a href=""></a>    (data[<span class="st">'engines'</span>] <span class="op">&gt;=</span> <span class="dv">3</span>) <span class="op">&amp;</span> (data[<span class="st">'seats'</span>] <span class="op">&lt;=</span> <span class="dv">120</span>), </span>
 <span id="cb10-3"><a href=""></a>    [<span class="st">'engines'</span>, <span class="st">'manufacturer'</span>, <span class="st">'model'</span>, <span class="st">'seats'</span>]</span>
-<span id="cb10-4"><a href=""></a>].drop_duplicates(subset<span class="op">=</span>[<span class="st">'model'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="165">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-
-<table class="dataframe caption-top" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header" style="text-align: right;">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">engines</th>
-<th data-quarto-table-cell-role="th">manufacturer</th>
-<th data-quarto-table-cell-role="th">model</th>
-<th data-quarto-table-cell-role="th">seats</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">3732</td>
-<td>4.0</td>
-<td>CANADAIR LTD</td>
-<td>CF-5D</td>
-<td>2.0</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">25294</td>
-<td>4.0</td>
-<td>DOUGLAS</td>
-<td>DC-7BF</td>
-<td>102.0</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">104175</td>
-<td>3.0</td>
-<td>AVIONS MARCEL DASSAULT</td>
-<td>MYSTERE FALCON 900</td>
-<td>12.0</td>
-</tr>
-</tbody>
-</table>
-
-</div>
+<span id="cb10-4"><a href=""></a>].drop_duplicates(subset<span class="op">=</span>[<span class="st">'model'</span>])</span>
+<span id="cb10-5"><a href=""></a></span>
+<span id="cb10-6"><a href=""></a><span class="bu">print</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        engines            manufacturer               model  seats
+3732        4.0            CANADAIR LTD               CF-5D    2.0
+25294       4.0                 DOUGLAS              DC-7BF  102.0
+104175      3.0  AVIONS MARCEL DASSAULT  MYSTERE FALCON 900   12.0</code></pre>
 </div>
 </div>
 </section>

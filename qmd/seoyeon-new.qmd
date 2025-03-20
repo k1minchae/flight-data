@@ -410,12 +410,12 @@ plt.show()
 #| eval: true
 #| echo: true
 
-data.loc[
+d = data.loc[
     (data['engines'] >= 3) & (data['seats'] <= 120), 
     ['engines', 'manufacturer', 'model', 'seats']
 ].drop_duplicates(subset=['model'])
 
-
+print(d)
 ```
 
 ------------------------------------------------------------------------
