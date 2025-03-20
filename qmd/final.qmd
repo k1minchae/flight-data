@@ -1,0 +1,1039 @@
+---
+title: "뉴욕 비행장 데이터 분석"
+subtitle: "권서연, 김민채, 박재원, 오상원"
+author: "7조"
+format: 
+  revealjs:
+    highlight-style: gruvbox
+    incremental: true  
+    code-line-numbers: true
+    language: ko
+    # logo: logo.png
+    css: styles.css
+    title-slide-attributes: 
+      data-background-image: "assets/title-bg.gif"
+      data-background-size: cover
+    slide-attributes:
+      data-background-image: "assets/bg.png"
+      data-background-size: cover
+jupyter: python3
+---
+
+--- 
+
+## 목차 {data-background-image="assets/bg.png"}
+<div style="padding-left: 3rem !important;">
+
+::: {.incremental}
+
+1. 분석 목표
+2. 데이터 설명  
+3. 시간대별 지연 분석
+4. 계절별 지연 분석
+5. 날씨별 지연 분석
+6. 추가 인사이트 도출
+
+
+:::
+</div>
+
+---
+
+
+## 2. 분석 목표 {data-background-image="assets/bg.png"}
+
+
+1. 항공기 지연 패턴 분석
+2. 항공기 지연 요인 분석
+   - 시간대별
+   - 계절별
+   - 날씨별
+3. 추가 인사이트 도출
+
+-----------------------------------------------------------------------------------
+
+## 2. 데이터셋 정보 {data-background-image="assets/bg.png"}
+
+```{python}
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import pandas as pd
+from nycflights13 import flights, planes, weather
+```
+
+![](https://docs.ropensci.org/dittodb/articles/relational-nycflights.svg)
+
+<div style="margin-top: 1rem; padding-left: 1rem; padding-bottom: 1.6rem;">
+  <li style="font-size: 1.6rem; margin-top: 5px; font-family: Pretendard !important;"> 데이터 구성: 2013년 뉴욕에서 출발한 모든 항공편의 운항 데이터 </li>
+  <li style="font-size: 1.6rem; margin-top: 5px; font-family: Pretendard !important;"> 포함된 정보: 항공사, 공항, 날씨, 항공기 메타데이터 포함 </li>
+  <li style="font-size: 1.6rem; margin-top: 5px; font-family: Pretendard !important;"> 분석 대상: `flights`, `planes`, `weather` 중심 </li>
+</div>
+
+---
+
+
+
+## 2. 데이터 병합 {data-background-image="assets/bg.png"}
+
+- 다음과 같이 비행장 데이터 `flights`와 `planes`를 병합한 데이터를 생성합니다.
+
+``` {.python code-line-numbers="|9"}
+#| echo: true
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from nycflights13 import flights, planes
+
+mer_dat = pd.merge(flights, planes, on='tailnum', how='left')
+mer_dat.info()
+```
+
+------------------------------------------------------------------------
+
+## 2. 데이터 병합 {data-background-image="assets/bg.png"}
+
+- 병합된 데이터인 `mer_dat`은 다음과 같은 변수들을 가지고 있습니다.
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from nycflights13 import flights, planes
+
+mer_dat = pd.merge(flights, planes, on='tailnum', how='left')
+mer_dat.info()
+```
+
+
+------------------------------------------------------------------------
+
+## 3. 시간대별 출발 지연 분석 {data-background-image="assets/bg.png"}
+
+``` {.python code-line-numbers="|1-3|5-13|14"}
+# 전처리: 출발시간, 도착시간, 지연시간이 nan 일 경우 제거
+flights = flights.dropna(
+    subset=['dep_time', 'arr_time', 'arr_delay', 'dep_delay', 'air_time'])
+
+# 시간대 나누는 함수
+def divide_hour(hour):
+    if 6 <= hour < 12:
+        return 'morning'
+    if 12 <= hour < 18:
+        return 'lunch'
+    if 18 <= hour < 24:
+        return 'dinner'
+    return 'dawn'
+flights['time_of_day'] = flights['hour'].apply(divide_hour)
+
+```
+
+::::: columns
+
+
+:::{.column width="50%"}
+<div style="padding-bottom: 1rem;"> 
+- 분류 기준: 새벽, 아침, 점심, 저녁
+- <span style="color: #ef4444">목적: 각 시간대별 지연 패턴 분석</span>
+</div>
+
+:::
+
+:::{.column width="50%"}
+
+```{python}
+flights = flights.dropna(
+    subset=['dep_time', 'arr_time', 'arr_delay', 'dep_delay', 'air_time'])
+
+# 시간대 나누는 함수
+def divide_hour(hour):
+    if 6 <= hour < 12:
+        return 'morning'
+    if 12 <= hour < 18:
+        return 'lunch'
+    if 18 <= hour < 24:
+        return 'dinner'
+    return 'dawn'
+flights['time_of_day'] = flights['hour'].apply(divide_hour)
+result = flights.loc[:, ['hour', 'time_of_day']].head(3)
+print(result)
+```
+
+
+:::
+:::::
+
+
+## 3. 시간대별 출발 지연 분석 {data-background-image="assets/bg.png"}
+:::::columns
+:::{.column width="55%"}
+<h6 class="subtitle-style"> 시간대 별 항공편이 얼마나 있을까? </h6>
+```{python}
+#| eval: false
+#| echo: true
+time_flights = flights.groupby('time_of_day').size()
+plt.bar(['dawn', 'morning', 'lunch', 'dinner'], 
+        time_flights.values[[0, 3, 2, 1]])
+plt.xlabel('time')
+plt.ylabel('flights')
+plt.title('flights by time')
+```
+
+<div style="margin-left:1rem;">
+  <li style="margin-top: 3rem;">새벽에는 항공편 수가 거의 X</li>
+  <li><span style="color: #ef4444;">아침과 점심에</span> 가장 많음</li>
+  <li>저녁시간에는 항공편 수 감소</li>
+
+</div>
+
+:::
+
+:::{.column width="45%"}
+```{python}
+#| eval: true
+#| echo: false
+# 시각화: 시간대 별로 항공편수가 몇개있는지
+plt.figure(figsize=(6, 4))
+time_flights = flights.groupby('time_of_day').size()
+colors = ["#a1a1aa", "#FF9999", "#FF9999", "#a1a1aa"]
+plt.bar(['dawn', 'morning', 'lunch', 'dinner'], 
+        time_flights.values[[0, 3, 2, 1]], color=colors)
+plt.xlabel('time')
+plt.ylabel('flights')
+plt.title('flights by time')
+plt.show()
+```
+
+::: {.fragment}
+<p style="color: #ef4444; font-style: italic; font-size: 34px; margin-top: 0.6rem; font-family: Cafe24Ssurround">"아침, 점심에 지연이 많겠지?"</p>
+
+:::
+:::
+:::::
+
+
+
+
+## 3. 시간대별 출발 지연 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 15분 이상 출발 지연된 비행편 살펴보기 </h6>
+
+:::::columns
+:::{.column width="55%"}
+``` {.python code-line-numbers="|1-5|6-11|"}
+# 15분 이상 지연된 비행기들
+delayed = flights.loc[flights['dep_delay'] >= 15, :]
+
+# 지연된 비행기 시간대별로 분류
+delay_cnt = delayed.groupby('time_of_day').size()
+plt.bar(['dawn', 'morning', 'lunch', 'dinner'],
+       delay_cnt.values[[0, 3, 2, 1]])
+plt.xlabel('time')
+plt.ylabel('delayed flights')
+plt.title('delay by time')
+plt.show()
+```
+:::
+:::{.column width="45%"}
+```{python}
+#| eval: true
+#| echo: false
+colors = ["#a1a1aa", "#FF9999", "#a1a1aa", "#FF9999"]
+# 15분 이상 지연된 비행기들
+delayed = flights.loc[flights['dep_delay'] >= 15, :]
+
+# 지연된 비행기 시간대별로 분류
+delay_cnt = delayed.groupby('time_of_day').size()
+plt.figure(figsize=(5, 3))
+plt.bar(['dawn', 'morning', 'lunch', 'dinner'],
+       delay_cnt.values[[0, 3, 2, 1]],
+       color=colors)
+plt.xlabel('time')
+plt.ylabel('delayed flights')
+plt.title('delay by time')
+plt.show()
+```
+- 항공편이 많은건 아침인데?
+- <span class="red-color">저녁이 더 많이 지연되고 있음!</span>
+:::
+:::::
+
+
+
+
+
+## 3. 시간대별 출발 지연 분석 {data-background-image="assets/bg.png"}
+
+<img src="assets/news.png" style="width:75%;">
+
+:::{.fragment}
+<img src="assets/question.png" style="position: absolute; bottom: 0; width: 30%; right: -40px;">
+
+<span class="red-color"
+      style="font-family: Cafe24Ssurround; font-size: 32px;">그래서 연쇄 지연으로 저녁에 지연이 더 심한건가?</span>
+
+:::
+
+
+
+
+## 3. 연쇄 지연 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 데이터 전처리 과정 </h6>
+
+```{python}
+# 출발 시간 기준으로 정렬
+sort_ = flights.sort_values(['year','month', 'day', 'hour', 'minute'], ascending=True)
+
+# 같은 날 이전 항공편의 도착 지연 정보 추가
+sort_['prev_arr_delay'] = sort_.groupby(['year', 'month', 'day', 'flight'])['arr_delay'].shift(1)
+
+# 해당 날에 첫 항공편이거나, 유일한 항공편 제거
+sort_ = sort_.dropna(subset='prev_arr_delay')
+
+# comprehension 사용으로 연쇄 지연 count
+days = ['dawn', 'morning', 'lunch', 'dinner']
+delay_counts = {time: len(sort_.loc[(sort_['time_of_day'] == time) & 
+                                  (sort_['dep_delay'] >= 15) & 
+                                  (sort_['prev_arr_delay'] >= 15), :]) 
+                for time in days}
+```
+
+``` {.python code-line-numbers="|1-2|4-5|7-8|10-15|"}
+# 출발 시간 기준으로 정렬
+sort_ = flights.sort_values(['year','month', 'day', 'hour', 'minute'], ascending=True)
+
+# 같은 날 이전 항공편의 도착 지연 정보 추가
+sort_['prev_arr_delay'] = sort_.groupby(['year', 'month', 'day', 'flight'])['arr_delay'].shift(1)
+
+# 해당 날에 첫 항공편이거나, 유일한 항공편 제거
+sort_ = sort_.dropna(subset='prev_arr_delay')
+
+# comprehension 사용으로 연쇄 지연 count
+days = ['dawn', 'morning', 'lunch', 'dinner']
+delay_counts = {time: len(sort_.loc[(sort_['time_of_day'] == time) & 
+                                  (sort_['dep_delay'] >= 15) & 
+                                  (sort_['prev_arr_delay'] >= 15), :]) 
+                for time in days}
+```
+
+
+---
+
+## 3. 연쇄 지연 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 데이터 시각화 </h6>
+:::::columns
+:::{.column width="60%"}
+``` {.python code-line-numbers="|6|"}
+# 파이 차트 그리기
+plt.figure(figsize=(7, 7))
+colors = ["#c4b5fd", "#bef264", "#fdba74", "#155e75"]
+plt.pie(delay_counts.values(), 
+        labels=days, 
+        autopct=lambda p: f'{p:.1f}%' if p > 0 else '',
+        startangle=90, 
+        colors=colors, 
+        wedgeprops={"edgecolor": "#52525b"})
+plt.title("cascade delay")
+plt.legend(days, title="Time Periods", loc="upper right")
+plt.show()
+```
+:::
+:::{.column width="40%"}
+```{python}
+#| echo: false
+#| eval: true
+# 파이 차트 그리기
+plt.figure(figsize=(4.5, 4.5))
+colors = ["#c4b5fd", "#bef264", "#fdba74", "#155e75"]
+plt.pie(delay_counts.values(), 
+        labels=days, 
+        autopct=lambda p: f'{p:.1f}%' if p > 0 else '',
+        startangle=90, 
+        colors=colors, 
+        wedgeprops={"edgecolor": "#52525b"})
+plt.title("cascade delay")
+plt.legend(days, title="Time Periods", loc="upper right")
+plt.show()
+```
+:::
+:::::
+
+------------------------------------------------------------------
+
+
+## 4. 계절별 출발 지연 시간 {data-background-image="assets/bg.png"}
+
+``` {.python code-line-numbers="|2-6|9-13"}
+#| echo: true
+spring = mer_dat.loc[(mer_dat['month'] >= 3) & (mer_dat['month'] <= 5)]
+summer = mer_dat.loc[(mer_dat['month'] >= 6) & (mer_dat['month'] <= 8)]
+autumn = mer_dat.loc[(mer_dat['month'] >= 9) & (mer_dat['month'] <= 11)]
+winter = mer_dat.loc[(mer_dat['month'] == 12) | (mer_dat['month'] <= 2)]
+# 봄: 3~5월, 여름: 6~8월, 가을: 9~11월, 겨울: 12~2월로 설정
+
+seasons = ['spring', 'summer', 'autumn', 'winter']
+delays = [spring['dep_delay'].mean(),
+          summer['dep_delay'].mean(),
+          autumn['dep_delay'].mean(),
+          winter['dep_delay'].mean()]
+# 각 계절별 평균 출발 지연 시간을 y축으로 설정
+colors = ['#FFB6C1', '#87CEEB', '#D2691E', '#4682B4']
+
+plt.bar(seasons, delays, color = colors)
+plt.ylabel('dep_delay')
+plt.xlabel("season") 
+plt.title('Correlate season with dep_delay')
+plt.show()
+```
+
+------------------------------------------------------------------------
+
+## 4. 계절별 출발 지연 시간 {data-background-image="assets/bg.png"}
+
+```{python}
+dep_delay_avg = mer_dat.groupby("month")["dep_delay"].mean()
+
+spring = mer_dat.loc[(mer_dat['month'] >= 3) & (mer_dat['month'] <= 5)]
+summer = mer_dat.loc[(mer_dat['month'] >= 6) & (mer_dat['month'] <= 8)]
+autumn = mer_dat.loc[(mer_dat['month'] >= 9) & (mer_dat['month'] <= 11)]
+winter = mer_dat.loc[(mer_dat['month'] == 12) | (mer_dat['month'] <= 2)]
+
+seasons = ['spring', 'summer', 'autumn', 'winter']
+delays = [spring['dep_delay'].mean(),
+          summer['dep_delay'].mean(),
+          autumn['dep_delay'].mean(),
+          winter['dep_delay'].mean()]
+colors = ['#FFB6C1', '#87CEEB', '#D2691E', '#4682B4']
+
+plt.bar(seasons, delays, color = colors)
+plt.ylabel('dep_delay')
+plt.xlabel("season") 
+plt.title('Correlate season with dep_delay')
+plt.show()
+```
+
+- <span class="red-color">여름이</span> 가장 높은 지연 시간을 가지고, <span class="red-color">가을이 </span>가장 낮은 지연 시간을 가진다.
+
+------------------------------------------------------------------------
+
+## 4. 계절별 출발 지연 시간 {data-background-image="assets/bg.png"}
+
+```{python}
+dep_delay_avg = mer_dat.groupby("month")["dep_delay"].mean()
+
+spring = mer_dat.loc[(mer_dat['month'] >= 3) & (mer_dat['month'] <= 5)]
+summer = mer_dat.loc[(mer_dat['month'] >= 6) & (mer_dat['month'] <= 8)]
+autumn = mer_dat.loc[(mer_dat['month'] >= 9) & (mer_dat['month'] <= 11)]
+winter = mer_dat.loc[(mer_dat['month'] == 12) | (mer_dat['month'] <= 2)]
+
+seasons = ['spring', 'summer', 'autumn', 'winter']
+delays = [spring['dep_delay'].mean(),
+          summer['dep_delay'].mean(),
+          autumn['dep_delay'].mean(),
+          winter['dep_delay'].mean()]
+colors = ['#A9A9A9', '#87CEEB', '#A9A9A9', '#A9A9A9']
+
+plt.figure(figsize=(7, 4))
+plt.bar(seasons, delays, color = colors)
+plt.ylabel('dep_delay')
+plt.xlabel("season") 
+plt.title('Correlate season with dep_delay')
+plt.show()
+```
+:::{.fragment}
+<img src="assets/rain.png" style="position: absolute; bottom: 0; width: 50%; right: -250px;">
+<li>여름에는 폭우, 천둥번개, 허리케인 등 강한 기상 현상에 의해<br> 지연이 다수 발생한다.</li>
+
+:::
+------------------------------------------------------------------------
+
+## 4. 계절별 출발 지연 시간 {data-background-image="assets/bg.png"}
+
+```{python}
+dep_delay_avg = mer_dat.groupby("month")["dep_delay"].mean()
+
+spring = mer_dat.loc[(mer_dat['month'] >= 3) & (mer_dat['month'] <= 5)]
+summer = mer_dat.loc[(mer_dat['month'] >= 6) & (mer_dat['month'] <= 8)]
+autumn = mer_dat.loc[(mer_dat['month'] >= 9) & (mer_dat['month'] <= 11)]
+winter = mer_dat.loc[(mer_dat['month'] == 12) | (mer_dat['month'] <= 2)]
+
+seasons = ['spring', 'summer', 'autumn', 'winter']
+delays = [spring['dep_delay'].mean(),
+          summer['dep_delay'].mean(),
+          autumn['dep_delay'].mean(),
+          winter['dep_delay'].mean()]
+colors = ['#A9A9A9', '#A9A9A9', '#A9A9A9', '#4682B4']
+
+plt.figure(figsize=(7, 4))
+plt.bar(seasons, delays, color = colors)
+plt.ylabel('dep_delay')
+plt.xlabel("season") 
+plt.title('Correlate season with dep_delay')
+plt.show()
+```
+:::{.fragment}
+<img src="assets/snow.png" style="position: absolute; top: 10px; width: 20%; left: -150px;">
+<li>겨울에는 눈, 얼음, 결빙 등으로 인해 활주로가 이상적인<br> 상태를 유지하기 힘들다.</li>
+
+:::
+------------------------------------------------------------------------
+
+## 4. 계절별 출발 지연 시간 {data-background-image="assets/bg.png"}
+
+```{python}
+dep_delay_avg = mer_dat.groupby("month")["dep_delay"].mean()
+
+spring = mer_dat.loc[(mer_dat['month'] >= 3) & (mer_dat['month'] <= 5)]
+summer = mer_dat.loc[(mer_dat['month'] >= 6) & (mer_dat['month'] <= 8)]
+autumn = mer_dat.loc[(mer_dat['month'] >= 9) & (mer_dat['month'] <= 11)]
+winter = mer_dat.loc[(mer_dat['month'] == 12) | (mer_dat['month'] <= 2)]
+
+seasons = ['spring', 'summer', 'autumn', 'winter']
+delays = [spring['dep_delay'].mean(),
+          summer['dep_delay'].mean(),
+          autumn['dep_delay'].mean(),
+          winter['dep_delay'].mean()]
+colors = ['#FFB6C1', '#A9A9A9', '#D2691E', '#A9A9A9']
+
+plt.figure(figsize=(7, 4))
+plt.bar(seasons, delays, color = colors)
+plt.ylabel('dep_delay')
+plt.xlabel("season") 
+plt.title('Correlate season with dep_delay')
+plt.show()
+```
+
+:::{.fragment}
+<li><span class="red-color">가을은</span> 기온 변화가 적고 기상 조건이 안정적이다.</li>
+<li><span class="red-color">봄은</span> 가을보다 날씨의 변화 폭이 크기 때문에 지연이 발생한다.</li>
+
+:::
+------------------------------------------------------------------------
+
+
+
+
+
+## 5. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 날씨가 좋은날보다 흐린날, 비행기 지연 시간이 더 길겠지? </h6>
+
+<img src="https://files.oaiusercontent.com/file-7woHZLncGHrB3gVV12cLa8?se=2025-03-20T06%3A28%3A07Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3D7fb64046-611d-433f-b846-4dc7cc292da1.webp&sig=/dfUoZ64q%2BC71ez7fe550odOSuci6FrqBwPEvj9GI7E%3D">
+
+
+---------------------------------------------------
+
+## 5. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+
+
+``` {.python code-line-numbers="|1-2|4-5|7-10|12-17|19-24|"}
+# 데이터 병합 (비행 + 날씨)
+flights_weather = pd.merge(flights, weather, on=['year', 'month', 'day', 'hour', 'origin'], how='inner')
+
+# 결측치 제거
+flights_weather = flights_weather.dropna(subset=['arr_delay', 'dep_delay'])
+
+# 사분위수 계산
+q1_gust, q3_gust = flights_weather['wind_gust'].quantile([0.25, 0.75])
+q1_speed, q3_speed = flights_weather['wind_speed'].quantile([0.25, 0.75])
+q1_visib, q3_visib = flights_weather['visib'].quantile([0.25, 0.75])
+
+# 날씨가 나쁜 경우 (상위 25%의 돌풍 & 바람 속도, 하위 25%의 가시거리)
+bad_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] >= q3_gust) &
+    (flights_weather['wind_speed'] >= q3_speed) &
+    (flights_weather['visib'] <= q1_visib)
+]
+
+# 날씨가 좋은 경우 (하위 25%의 돌풍 & 바람 속도, 상위 25%의 가시거리)
+good_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] <= q1_gust) &
+    (flights_weather['wind_speed'] <= q1_speed) &
+    (flights_weather['visib'] >= q3_visib)
+]
+
+```
+-----------------
+
+```{python}
+#| echo: false
+#| eval: true
+flights_weather = pd.merge(flights, weather, on=['year', 'month', 'day', 'hour', 'origin'], how='inner')
+
+# 결측치 제거
+flights_weather = flights_weather.dropna(subset=['arr_delay', 'dep_delay'])
+
+# 사분위수 계산
+q1_gust, q3_gust = flights_weather['wind_gust'].quantile([0.25, 0.75])
+q1_speed, q3_speed = flights_weather['wind_speed'].quantile([0.25, 0.75])
+q1_visib, q3_visib = flights_weather['visib'].quantile([0.25, 0.75])
+
+# 날씨가 나쁜 경우 (상위 25%의 돌풍 & 바람 속도, 하위 25%의 가시거리)
+bad_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] >= q3_gust) &
+    (flights_weather['wind_speed'] >= q3_speed) &
+    (flights_weather['visib'] <= q1_visib)
+]
+
+# 날씨가 좋은 경우 (하위 25%의 돌풍 & 바람 속도, 상위 25%의 가시거리)
+good_weather = flights_weather.loc[
+    (flights_weather['wind_gust'] <= q1_gust) &
+    (flights_weather['wind_speed'] <= q1_speed) &
+    (flights_weather['visib'] >= q3_visib)
+]
+```
+
+
+
+## 5. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style"> 데이터 시각화 </h6>
+
+``` {.python code-line-numbers="|1-2|"}
+x = ['bad weather', 'good weather']
+y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])]
+# 막대그래프 그리기
+plt.figure(figsize=(6, 4))
+plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
+
+# 그래프 스타일 적용
+plt.xlabel("Weather Condition")
+plt.ylabel("Average Departure Delay (minutes)")
+plt.title("Impact of Weather on Departure Delay")
+plt.ylim(0, max(y) * 1.2)  # Y축 범위를 최대값 기준으로 설정
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+# 그래프 출력
+plt.show()
+```
+
+```{python}
+#| eval: false
+x = ['bad weather', 'good weather']
+y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])]
+# 막대그래프 그리기
+plt.figure(figsize=(6, 4))
+plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
+
+# 그래프 스타일 적용
+plt.xlabel("Weather Condition")
+plt.ylabel("Average Departure Delay (minutes)")
+plt.title("Impact of Weather on Departure Delay")
+plt.ylim(0, max(y) * 1.2)  # Y축 범위를 최대값 기준으로 설정
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+# 그래프 출력
+plt.show()
+```
+
+----------------------------------------
+
+
+## 5. 날씨와 지연 시간의 관계 분석 {data-background-image="assets/bg.png"}
+:::::columns
+:::{.column width="50%"}
+```{python}
+#| eval: true
+x = ['bad weather', 'good weather']
+y = [np.nanmean(bad_weather['dep_delay']), np.nanmean(good_weather['dep_delay'])]
+# 막대그래프 그리기
+plt.figure(figsize=(6, 4))
+plt.bar(x, y, color=['red', 'blue'], alpha=0.7, edgecolor='black')
+
+# 그래프 스타일 적용
+plt.xlabel("Weather Condition")
+plt.ylabel("Average Departure Delay (minutes)")
+plt.title("Impact of Weather on Departure Delay")
+plt.ylim(0, max(y) * 1.2)  # Y축 범위를 최대값 기준으로 설정
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+# 그래프 출력
+plt.show()
+```
+:::
+:::{.column width="50%"}
+- 예상대로 날씨가 안좋을때 지연시간이 길어진다.
+- 나쁜 날씨일 때 지연시간이 <span class="red-color">1.74배</span> 정도 길다.
+:::
+:::::
+
+
+----------------------------------------------
+
+## 6. 엔진 개수와 좌석수의 관계 {data-background-image="assets/bg.png"}
+
+<h6 class="subtitle-style">가설: 엔진 개수가 많을수록,좌석수가 많아질 것이다</h6>
+
+
+```{python}
+#| code-fold: false
+#| echo: true
+data = pd.merge(flights, planes, on = "tailnum", how = "left")
+
+engines_seats = data.groupby('engines')['seats'].mean()
+engines_seats
+```
+
+
+------------------------------------------------------------------------
+
+## 6-1.​ 꺾은선 그래프로 시각화 {data-background-image="assets/bg.png"}
+
+:::::: columns
+::: {.column width="50%"}
+```{python}
+#| eval: false
+#| echo: true
+
+# 꺾은선 그래프 그리기
+plt.figure(figsize=(5, 5))
+plt.plot(engines_seats.index, engines_seats.values,
+        marker='o', linestyle='-', color='b')
+
+# 각 점에 라벨 추가
+for x, y in engines_seats.items():
+    plt.text(x + (0.1 if x == 1.0 else -0.4), y,
+           ## 엔진 한 개일 때는 x+0.1 좌표에
+           ## 나머지는 x-0.4 좌표에 위치
+           f"{y:.1f}", fontsize=10, color="black")
+
+# 축과 제목 설정
+plt.xticks(engines_seats.index) 
+plt.xlabel("Number of Engines")
+plt.ylabel("Average Seats")
+plt.title("Average Seats by Number of Engines")
+plt.grid(True, linestyle="--", alpha=0.7)
+
+plt.show()
+```
+:::
+
+:::: {.column width="50%"}
+::: {style="padding-top: 0px;"}
+```{python}
+#| eval: true
+#| echo: false
+# 꺾은선 그래프 그리기
+plt.figure(figsize=(5, 5))
+plt.plot(engines_seats.index, engines_seats.values, marker='o', linestyle='-', color='b')
+
+## 각 점에 라벨 추가
+for x, y in engines_seats.items():
+    plt.text(x + (0.1 if x == 1.0 else -0.4), y, f"{y:.1f}", fontsize=10, color="black")
+
+## 축과 제목 설정
+plt.xticks(engines_seats.index) 
+plt.xlabel("Number of Engines")
+plt.ylabel("Average Seats")
+plt.title("Average Seats by Number of Engines")
+plt.grid(True, linestyle="--", alpha=0.7)
+
+plt.show()
+
+
+```
+:::
+::::
+::::::
+
+------------------------------------------------------------------------
+
+## 6-1.​ 꺾은선 그래프로 시각화 {data-background-image="assets/bg.png"}
+
+:::::: columns
+::: {.column width="50%"}
+
+<li>꺾은선 그래프에서 엔진 개수가 4개일 때 좌석 수가 급감↘️​하는 패턴</li>
+<br>
+<li>특정 값들의 영향을 받은 건지 원래 이런 패턴인지 확인해볼 필요가 있음</li>
+<br>
+<li>`박스 플롯(Box Plot)`으로 좌석 수의 분포를 살펴보자!</li>
+:::
+
+:::: {.column width="50%"}
+::: {style="padding-top: 0px; padding-left: 2rem;"}
+```{python}
+#| eval: true
+#| echo: false
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(5, 5))
+plt.plot(engines_seats.index, engines_seats.values, marker='o', linestyle='-', color='b')
+
+# 각 점에 라벨 추가 (엔진 4개는 빨간색 강조)
+for x, y in engines_seats.items():
+    color = "red" if x == 4 else "black"  # 엔진 4개일 때 빨간색
+    ha = 'left' if x == 1.0 else 'right'
+    plt.text(x + (0.1 if x == 1.0 else -0.4), y, f"{y:.1f}", fontsize=10, color=color)
+
+# 배경 강조 (엔진 4개 주변)
+plt.axvspan(3.35, 4.0, color='red', alpha=0.15)
+
+# 축과 제목 설정
+plt.xticks(engines_seats.index)
+plt.xlabel("Number of Engines")
+plt.ylabel("Average Seats")
+plt.title("Average Seats by Number of Engines")
+plt.grid(True, linestyle="--", alpha=0.7)
+
+plt.show()
+
+
+```
+:::
+::::
+::::::
+
+------------------------------------------------------------------------
+
+## 6-2. 박스플롯으로 분포 확인 {data-background-image="assets/bg.png"}
+
+::::: columns
+::: {.column width="50%" style="margin-top: 15px;"}
+```{python}
+#| eval: false
+#| echo: true
+
+plt.figure(figsize=(6, 5))
+sns.boxplot(x="engines", y="seats", data=data,
+       hue="engines", palette="Blues", width=0.5)
+plt.xlabel("Number of Engines")
+plt.ylabel("Seats")
+plt.title("Seats Distribution by Number of Engines")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+plt.show()
+```
+
+<li>엔진 개수가 3개, 4개일 때 박스플롯 형태가 이상함</li>
+
+<li>왜 이렇게 나타나는지, `산점도(Scatter Plot)`를 추가해 개별 데이터 분포를 더 자세히 확인해보자!</li>
+:::
+
+::: {.column width="50%"}
+```{python}
+#| eval: true
+#| echo: false
+
+plt.figure(figsize=(6, 5))
+sns.boxplot(x="engines", y="seats", data=data, hue="engines", palette="Blues", width=0.5)
+plt.xlabel("Number of Engines")
+plt.ylabel("Seats")
+plt.title("Seats Distribution by Number of Engines")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+plt.show()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## 6-2​ 박스플롯에 스캐터플롯 추가 {data-background-image="assets/bg.png"}
+
+::::: columns
+::: {.column width="50%" style="margin-top: 15px;"}
+```{python}
+#| eval: false
+#| echo: true
+
+plt.figure(figsize=(6, 5))
+sns.boxplot(x="engines", y="seats", data=data,
+       hue="engines", palette="Blues", width=0.5)
+
+# 엔진 3개, 4개짜리만 따로 필터링해서 산점도 추가
+sns.stripplot(x="engines", y="seats",
+            data=data[(data["engines"] >= 3)], 
+            color="red", alpha=0.5,
+            jitter=0.1, size=6)
+            ## jitter: x값이 같은 데이터를 한 줄로 표시
+
+# 라벨 & 스타일 설정
+plt.xlabel("Number of Engines")
+plt.ylabel("Seats")
+plt.title("Seats Distribution by Number of Engines")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+plt.show()
+```
+:::
+
+::: {.column width="50%"}
+```{python}
+#| eval: true
+#| echo: false
+
+plt.figure(figsize=(6, 5))
+sns.boxplot(x="engines", y="seats", data=data, hue="engines", palette="Blues", width=0.5)
+
+# 엔진 3개, 4개짜리만 따로 필터링해서 산점도 추가
+sns.stripplot(x="engines", y="seats",
+            data=data[(data["engines"] >= 3)], 
+            color="red", alpha=0.5,
+            jitter=0.1, size=6)
+            ## jitter: x값이 같은 데이터를 한 줄로 표시
+
+# 라벨 & 스타일 설정
+plt.xlabel("Number of Engines")
+plt.ylabel("Seats")
+plt.title("Seats Distribution by Number of Engines")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+plt.show()
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+
+## 6-3​ 박스플롯, 스캐터플롯 해석 {data-background-image="assets/bg.png"}
+::::: columns
+::: {.column width="50%" style="margin-top: 0px;"}
+
+```{python}
+#| eval: true
+#| echo: true
+
+data[data["engines"] == 3]["seats"].describe()
+```
+
+::: {.fragment}
+
+<li style="font-size: 24px;">데이터 개수가 너무 적어서 사분위수를 나누기 어려움</li>
+<li style="font-size: 24px;">중앙값(50%)가 12명, 75%는 379명, 평균은 169명</li>
+<li style="font-size: 24px;">데이터가 극단적으로 나뉘어 있음 (12명 vs. 379명)</li>
+:::
+
+:::
+
+::: {.column width="50%"}
+
+```{python}
+#| eval: true
+#| echo: false
+
+plt.figure(figsize=(6, 5))
+sns.boxplot(x="engines", y="seats", data=data, hue="engines", palette="Blues", width=0.5)
+
+# 엔진 3개, 4개짜리만 따로 필터링해서 산점도 추가
+sns.stripplot(x="engines", y="seats",
+            data=data[(data["engines"] >= 3)], 
+            color="red", alpha=0.5,
+            jitter=0.1, size=6)
+            ## jitter: x값이 같은 데이터를 한 줄로 표시
+
+# 라벨 & 스타일 설정
+plt.xlabel("Number of Engines")
+plt.ylabel("Seats")
+plt.title("Seats Distribution by Number of Engines")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+plt.show()
+```
+
+:::
+:::::
+
+
+------------------------------------------------------------------------
+
+## 6-3​ 박스플롯, 스캐터플롯 해석 {data-background-image="assets/bg.png"}
+
+::::: columns
+::: {.column width="50%" style="margin-top: 15px;"}
+
+```{python}
+#| eval: true
+#| echo: true
+data[data["engines"] == 4]["seats"].describe()
+```
+
+:::{.fragment}
+<li style="font-size: 24px;">박스가 예상보다 아래쪽에 위치해있음 (0~100명)</li>
+<li style="font-size: 24px;">일부 이상치(378명, 450명)가 따로 표시됨</li>
+<li style="font-size: 24px;">50%가 2명 항공기이고, 102명 항공기가 나머지 25% 차지</li>
+:::
+
+:::
+
+::: {.column width="50%"}
+```{python}
+#| eval: true
+#| echo: false
+
+plt.figure(figsize=(6, 5))
+sns.boxplot(x="engines", y="seats", data=data, hue="engines", palette="Blues", width=0.5)
+
+# 엔진 3개, 4개짜리만 따로 필터링해서 산점도 추가
+sns.stripplot(x="engines", y="seats",
+            data=data[(data["engines"] >= 3)], 
+            color="red", alpha=0.5,
+            jitter=0.1, size=6)
+            ## jitter: x값이 같은 데이터를 한 줄로 표시
+
+# 라벨 & 스타일 설정
+plt.xlabel("Number of Engines")
+plt.ylabel("Seats")
+plt.title("Seats Distribution by Number of Engines")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+plt.show()
+```
+:::
+:::::
+
+
+
+------------------------------------------------------------------------
+
+## 6-4.​ 왜 예상과 다를까? {data-background-image="assets/bg.png"}
+
+```{python}
+#| eval: true
+#| echo: true
+
+d = data.loc[
+    (data['engines'] >= 3) & (data['seats'] <= 120), 
+    ['engines', 'manufacturer', 'model', 'seats']
+].drop_duplicates(subset=['model'])
+
+print(d)
+```
+
+------------------------------------------------------------------------
+
+## 6-4.​ 왜 예상과 다를까? {data-background-image="assets/bg.png"}
+
+::: {.panel-tabset style="font-size: 2px;"}
+### MYSTERE FALCON 900
+![](falcon900.jpg){width=800}
+
+### CF-5D
+![](cf5d.jpg){width=800}
+
+### DC-7BF
+![](dc7bf.jpg){width=800}
+:::
+
+
+------------------------------------------------------------------------
+
+## 💡 엔진 개수와 좌석수의 관계 {data-background-image="assets/bg.png"}
+
+#### 가설: 엔진 개수가 많을수록 좌석수가 많아질 것이다
+
+#### ➡️ "엔진 개수가 많다고 꼭 좌석이 많아지는 건 아니고, <br> 특수한 용도의 항공기 (화물기, 군용기, VIP기 등)가 존재!"
+
+
+
+----------------------------------------------------------------------
+
+## 💡 결론 {data-background-image="assets/bg.png"}
+
+#### 비행기 지연에는 시간, 계절, 날씨 등 다양한 요인이 존재한다.
+
+#### 데이터 분석을 할 때 한가지 요인이 아닌 다양한 요인을 분석하는 것이 중요하다.
