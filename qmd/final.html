@@ -210,24 +210,26 @@
 <div style="padding-left: 3rem !important;">
 <div>
 <ol type="1">
-<li class="fragment">항공기 지연 패턴 분석</li>
-<li class="fragment">항공기 지연 요인 분석
+<li class="fragment">분석 목표</li>
+<li class="fragment">데이터 병합</li>
+<li class="fragment">출발 지연 요인 분석
 <ul>
 <li class="fragment">시간대별</li>
 <li class="fragment">계절별</li>
 <li class="fragment">날씨별</li>
 </ul></li>
 <li class="fragment">추가 인사이트 도출</li>
+<li class="fragment">결론</li>
 </ol>
 </div>
 </div>
 </section>
 <section id="분석-목표" class="slide level2" data-background-image="assets/bg.png">
-<h2>분석 목표</h2>
+<h2>1. 분석 목표</h2>
 
-<img data-src="https://docs.ropensci.org/dittodb/articles/relational-nycflights.svg" class="r-stretch"><ul>
-<li class="fragment">비행기 관련 데이터를 활용</li>
-<li class="fragment">출발 지연의 패턴 및 요인 분석</li>
+<img src="https://files.oaiusercontent.com/file-SXnWhwPy9hXj6Vmq7oejVf?se=2025-03-20T10%3A10%3A17Z&amp;sp=r&amp;sv=2024-08-04&amp;sr=b&amp;rscc=max-age%3D604800%2C%20immutable%2C%20private&amp;rscd=attachment%3B%20filename%3Dd5df935f-2f08-409f-b35f-5141ab1b4d3b.webp&amp;sig=2aRjW82%2BGFy5gWnPCjiILuJIGQ4M0mj2B8Kk5DOkrP4%3D" class="r-stretch"><ul>
+<li class="fragment">설레는 마음으로 공항을 떠났지만 … 비행기 지연으로 슬퍼하는 …</li>
+<li class="fragment">비행기 출발 지연 요인을 분석해보고 출발 지연을 최대한 피할 수 있는 방법을 찾아보자!</li>
 </ul>
 </section>
 <section id="데이터-병합" class="slide level2" data-background-image="assets/bg.png">
@@ -250,7 +252,7 @@
 <ul>
 <li class="fragment">병합된 데이터인 <code>mer_dat</code>은 다음과 같은 변수들을 가지고 있습니다.</li>
 </ul>
-<div id="e4f97ac7" class="cell" data-execution_count="2">
+<div id="52df399f" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
 RangeIndex: 336776 entries, 0 to 336775
@@ -290,7 +292,7 @@ memory usage: 69.4+ MB</code></pre>
 </div>
 </section>
 <section id="시간대별-출발-지연-분석" class="slide level2" data-background-image="assets/bg.png">
-<h2>3. 시간대별 출발 지연 분석</h2>
+<h2>3-1. 시간대별 출발 지연 분석</h2>
 <div class="sourceCode" id="cb3" data-code-line-numbers="|1-3|5-13|14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="co"># 전처리: 출발시간, 도착시간, 지연시간이 nan 일 경우 제거</span></span>
 <span id="cb3-2"><a href=""></a>flights <span class="op">=</span> flights.dropna(</span>
 <span id="cb3-3"><a href=""></a>    subset<span class="op">=</span>[<span class="st">'dep_time'</span>, <span class="st">'arr_time'</span>, <span class="st">'arr_delay'</span>, <span class="st">'dep_delay'</span>, <span class="st">'air_time'</span>])</span>
@@ -314,7 +316,7 @@ memory usage: 69.4+ MB</code></pre>
 </ul>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="7ca626d1" class="cell" data-execution_count="3">
+<div id="b4ff2faf" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-stdout">
 <pre><code>   hour time_of_day
 0     5        dawn
@@ -325,13 +327,13 @@ memory usage: 69.4+ MB</code></pre>
 </div></div>
 </section>
 <section id="시간대별-출발-지연-분석-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>3. 시간대별 출발 지연 분석</h2>
+<h2>3-1. 시간대별 출발 지연 분석</h2>
 <div class="columns">
 <div class="column" style="width:55%;">
 <h6 class="subtitle-style">
 시간대 별 항공편이 얼마나 있을까?
 </h6>
-<div id="4afe0c7e" class="cell" data-execution_count="4">
+<div id="e8117703" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>time_flights <span class="op">=</span> flights.groupby(<span class="st">'time_of_day'</span>).size()</span>
 <span id="cb5-2"><a href=""></a>plt.bar([<span class="st">'dawn'</span>, <span class="st">'morning'</span>, <span class="st">'lunch'</span>, <span class="st">'dinner'</span>], </span>
 <span id="cb5-3"><a href=""></a>        time_flights.values[[<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>]])</span>
@@ -351,7 +353,7 @@ memory usage: 69.4+ MB</code></pre>
 </li>
 </div>
 </div><div class="column" style="width:45%;">
-<div id="61a436de" class="cell" data-execution_count="5">
+<div id="95763283" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -368,7 +370,7 @@ memory usage: 69.4+ MB</code></pre>
 </div></div>
 </section>
 <section id="시간대별-출발-지연-분석-2" class="slide level2" data-background-image="assets/bg.png">
-<h2>3. 시간대별 출발 지연 분석</h2>
+<h2>3-1. 시간대별 출발 지연 분석</h2>
 <h6 class="subtitle-style">
 15분 이상 출발 지연된 비행편 살펴보기
 </h6>
@@ -386,7 +388,7 @@ memory usage: 69.4+ MB</code></pre>
 <span id="cb6-10"><a href=""></a>plt.title(<span class="st">'delay by time'</span>)</span>
 <span id="cb6-11"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column" style="width:45%;">
-<div id="8698ddb6" class="cell" data-execution_count="6">
+<div id="3016e85e" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -402,7 +404,7 @@ memory usage: 69.4+ MB</code></pre>
 </div></div>
 </section>
 <section id="시간대별-출발-지연-분석-3" class="slide level2" data-background-image="assets/bg.png">
-<h2>3. 시간대별 출발 지연 분석</h2>
+<h2>3-1. 시간대별 출발 지연 분석</h2>
 <p><img src="assets/news.png" style="width:75%;"></p>
 <div class="fragment">
 <p><img src="assets/question.png" style="position: absolute; bottom: 0; width: 30%; right: -40px;"></p>
@@ -410,7 +412,7 @@ memory usage: 69.4+ MB</code></pre>
 </div>
 </section>
 <section id="연쇄-지연-분석" class="slide level2" data-background-image="assets/bg.png">
-<h2>3. 연쇄 지연 분석</h2>
+<h2>3-1. 연쇄 지연 분석</h2>
 <h6 class="subtitle-style">
 데이터 전처리 과정
 </h6>
@@ -431,7 +433,7 @@ memory usage: 69.4+ MB</code></pre>
 <span id="cb7-15"><a href=""></a>                <span class="cf">for</span> time <span class="kw">in</span> days}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="연쇄-지연-분석-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>3. 연쇄 지연 분석</h2>
+<h2>3-1. 연쇄 지연 분석</h2>
 <h6 class="subtitle-style">
 데이터 시각화
 </h6>
@@ -450,7 +452,7 @@ memory usage: 69.4+ MB</code></pre>
 <span id="cb8-11"><a href=""></a>plt.legend(days, title<span class="op">=</span><span class="st">"Time Periods"</span>, loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
 <span id="cb8-12"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column" style="width:40%;">
-<div id="7be4f8b1" class="cell" data-execution_count="8">
+<div id="6a1f4ff0" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -462,7 +464,7 @@ memory usage: 69.4+ MB</code></pre>
 </div></div>
 </section>
 <section id="계절별-출발-지연-시간" class="slide level2" data-background-image="assets/bg.png">
-<h2>4. 계절별 출발 지연 시간</h2>
+<h2>3-2. 계절별 출발 지연 시간</h2>
 <div class="sourceCode" id="cb9" data-code-line-numbers="|2-6|9-13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a><span class="co">#| echo: true</span></span>
 <span id="cb9-2"><a href=""></a>spring <span class="op">=</span> mer_dat.loc[(mer_dat[<span class="st">'month'</span>] <span class="op">&gt;=</span> <span class="dv">3</span>) <span class="op">&amp;</span> (mer_dat[<span class="st">'month'</span>] <span class="op">&lt;=</span> <span class="dv">5</span>)]</span>
 <span id="cb9-3"><a href=""></a>summer <span class="op">=</span> mer_dat.loc[(mer_dat[<span class="st">'month'</span>] <span class="op">&gt;=</span> <span class="dv">6</span>) <span class="op">&amp;</span> (mer_dat[<span class="st">'month'</span>] <span class="op">&lt;=</span> <span class="dv">8</span>)]</span>
@@ -485,8 +487,8 @@ memory usage: 69.4+ MB</code></pre>
 <span id="cb9-20"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="계절별-출발-지연-시간-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>4. 계절별 출발 지연 시간</h2>
-<div id="dc2d8543" class="cell" data-execution_count="9">
+<h2>3-2. 계절별 출발 지연 시간</h2>
+<div id="4aeef900" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -500,8 +502,8 @@ memory usage: 69.4+ MB</code></pre>
 </ul>
 </section>
 <section id="계절별-출발-지연-시간-2" class="slide level2" data-background-image="assets/bg.png">
-<h2>4. 계절별 출발 지연 시간</h2>
-<div id="d7c5275b" class="cell" data-execution_count="10">
+<h2>3-2. 계절별 출발 지연 시간</h2>
+<div id="6f304e8f" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -518,8 +520,8 @@ memory usage: 69.4+ MB</code></pre>
 </div>
 </section>
 <section id="계절별-출발-지연-시간-3" class="slide level2" data-background-image="assets/bg.png">
-<h2>4. 계절별 출발 지연 시간</h2>
-<div id="4d34b2e9" class="cell" data-execution_count="11">
+<h2>3-2. 계절별 출발 지연 시간</h2>
+<div id="1ec44d46" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -536,8 +538,8 @@ memory usage: 69.4+ MB</code></pre>
 </div>
 </section>
 <section id="계절별-출발-지연-시간-4" class="slide level2" data-background-image="assets/bg.png">
-<h2>4. 계절별 출발 지연 시간</h2>
-<div id="1206ad78" class="cell" data-execution_count="12">
+<h2>3-2. 계절별 출발 지연 시간</h2>
+<div id="fa541897" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -556,14 +558,14 @@ memory usage: 69.4+ MB</code></pre>
 </div>
 </section>
 <section id="날씨와-지연-시간의-관계-분석" class="slide level2" data-background-image="assets/bg.png">
-<h2>5. 날씨와 지연 시간의 관계 분석</h2>
+<h2>3-3. 날씨와 지연 시간의 관계 분석</h2>
 <h6 class="subtitle-style">
 날씨가 좋은날보다 흐린날, 비행기 지연 시간이 더 길겠지?
 </h6>
 
 <img src="https://files.oaiusercontent.com/file-7woHZLncGHrB3gVV12cLa8?se=2025-03-20T06%3A28%3A07Z&amp;sp=r&amp;sv=2024-08-04&amp;sr=b&amp;rscc=max-age%3D604800%2C%20immutable%2C%20private&amp;rscd=attachment%3B%20filename%3D7fb64046-611d-433f-b846-4dc7cc292da1.webp&amp;sig=/dfUoZ64q%2BC71ez7fe550odOSuci6FrqBwPEvj9GI7E%3D" class="r-stretch"></section>
 <section id="날씨와-지연-시간의-관계-분석-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>5. 날씨와 지연 시간의 관계 분석</h2>
+<h2>3-3. 날씨와 지연 시간의 관계 분석</h2>
 <div class="sourceCode" id="cb10" data-code-line-numbers="|1-2|4-5|7-10|12-17|19-24|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a><span class="co"># 데이터 병합 (비행 + 날씨)</span></span>
 <span id="cb10-2"><a href=""></a>flights_weather <span class="op">=</span> pd.merge(flights, weather, on<span class="op">=</span>[<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'day'</span>, <span class="st">'hour'</span>, <span class="st">'origin'</span>], how<span class="op">=</span><span class="st">'inner'</span>)</span>
 <span id="cb10-3"><a href=""></a></span>
@@ -590,7 +592,7 @@ memory usage: 69.4+ MB</code></pre>
 <span id="cb10-24"><a href=""></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="날씨와-지연-시간의-관계-분석-2" class="slide level2" data-background-image="assets/bg.png">
-<h2>5. 날씨와 지연 시간의 관계 분석</h2>
+<h2>3-3. 날씨와 지연 시간의 관계 분석</h2>
 <h6 class="subtitle-style">
 데이터 시각화
 </h6>
@@ -611,10 +613,10 @@ memory usage: 69.4+ MB</code></pre>
 <span id="cb11-15"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="날씨와-지연-시간의-관계-분석-3" class="slide level2" data-background-image="assets/bg.png">
-<h2>5. 날씨와 지연 시간의 관계 분석</h2>
+<h2>3-3. 날씨와 지연 시간의 관계 분석</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="cee5abbc" class="cell" data-execution_count="15">
+<div id="cc16dcef" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -631,16 +633,16 @@ memory usage: 69.4+ MB</code></pre>
 </div></div>
 </section>
 <section id="엔진-개수와-좌석수의-관계" class="slide level2" data-background-image="assets/bg.png">
-<h2>6. 엔진 개수와 좌석수의 관계</h2>
+<h2>4. 엔진 개수와 좌석수의 관계</h2>
 <h6 class="subtitle-style">
 가설: 엔진 개수가 많을수록,좌석수가 많아질 것이다
 </h6>
-<div id="90480d64" class="cell" data-execution_count="16">
+<div id="0ec9613c" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>data <span class="op">=</span> pd.merge(flights, planes, on <span class="op">=</span> <span class="st">"tailnum"</span>, how <span class="op">=</span> <span class="st">"left"</span>)</span>
 <span id="cb12-2"><a href=""></a></span>
 <span id="cb12-3"><a href=""></a>engines_seats <span class="op">=</span> data.groupby(<span class="st">'engines'</span>)[<span class="st">'seats'</span>].mean()</span>
 <span id="cb12-4"><a href=""></a>engines_seats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="129">
+<div class="cell-output cell-output-display" data-execution_count="83">
 <pre><code>engines
 1.0      4.201238
 2.0    138.504837
@@ -651,10 +653,10 @@ Name: seats, dtype: float64</code></pre>
 </div>
 </section>
 <section id="꺾은선-그래프로-시각화" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-1.​ 꺾은선 그래프로 시각화</h2>
+<h2>4-1.​ 꺾은선 그래프로 시각화</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="ed77afc2" class="cell" data-execution_count="17">
+<div id="7e3340ec" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a><span class="co"># 꺾은선 그래프 그리기</span></span>
 <span id="cb14-2"><a href=""></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">5</span>))</span>
 <span id="cb14-3"><a href=""></a>plt.plot(engines_seats.index, engines_seats.values,</span>
@@ -678,7 +680,7 @@ Name: seats, dtype: float64</code></pre>
 </div>
 </div><div class="column" style="width:50%;">
 <div style="padding-top: 0px;">
-<div id="a442b249" class="cell" data-execution_count="18">
+<div id="23059116" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -691,7 +693,7 @@ Name: seats, dtype: float64</code></pre>
 </div></div>
 </section>
 <section id="꺾은선-그래프로-시각화-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-1.​ 꺾은선 그래프로 시각화</h2>
+<h2>4-1.​ 꺾은선 그래프로 시각화</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <li>
@@ -707,7 +709,7 @@ Name: seats, dtype: float64</code></pre>
 </li>
 </div><div class="column" style="width:50%;">
 <div style="padding-top: 0px; padding-left: 2rem;">
-<div id="5153835e" class="cell" data-execution_count="19">
+<div id="202cb1ad" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -720,10 +722,10 @@ Name: seats, dtype: float64</code></pre>
 </div></div>
 </section>
 <section id="박스플롯으로-분포-확인" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-2. 박스플롯으로 분포 확인</h2>
+<h2>4-2. 박스플롯으로 분포 확인</h2>
 <div class="columns">
 <div class="column" style="margin-top: 15px;">
-<div id="7d50bf54" class="cell" data-execution_count="20">
+<div id="d5be6e08" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
 <span id="cb15-2"><a href=""></a>sns.boxplot(x<span class="op">=</span><span class="st">"engines"</span>, y<span class="op">=</span><span class="st">"seats"</span>, data<span class="op">=</span>data,</span>
 <span id="cb15-3"><a href=""></a>       hue<span class="op">=</span><span class="st">"engines"</span>, palette<span class="op">=</span><span class="st">"Blues"</span>, width<span class="op">=</span><span class="fl">0.5</span>)</span>
@@ -740,7 +742,7 @@ Name: seats, dtype: float64</code></pre>
 왜 이렇게 나타나는지, <code>산점도(Scatter Plot)</code>를 추가해 개별 데이터 분포를 더 자세히 확인해보자!
 </li>
 </div><div class="column" style="width:50%;">
-<div id="721c5546" class="cell" data-execution_count="21">
+<div id="149a09fa" class="cell" data-execution_count="21">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -752,10 +754,10 @@ Name: seats, dtype: float64</code></pre>
 </div></div>
 </section>
 <section id="박스플롯에-스캐터플롯-추가" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-2​ 박스플롯에 스캐터플롯 추가</h2>
+<h2>4-2​ 박스플롯에 스캐터플롯 추가</h2>
 <div class="columns">
 <div class="column" style="margin-top: 15px;">
-<div id="bb02002f" class="cell" data-execution_count="22">
+<div id="8beb3518" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
 <span id="cb16-2"><a href=""></a>sns.boxplot(x<span class="op">=</span><span class="st">"engines"</span>, y<span class="op">=</span><span class="st">"seats"</span>, data<span class="op">=</span>data,</span>
 <span id="cb16-3"><a href=""></a>       hue<span class="op">=</span><span class="st">"engines"</span>, palette<span class="op">=</span><span class="st">"Blues"</span>, width<span class="op">=</span><span class="fl">0.5</span>)</span>
@@ -776,7 +778,7 @@ Name: seats, dtype: float64</code></pre>
 <span id="cb16-18"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="97b93ead" class="cell" data-execution_count="23">
+<div id="603be9bc" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -788,12 +790,12 @@ Name: seats, dtype: float64</code></pre>
 </div></div>
 </section>
 <section id="박스플롯-스캐터플롯-해석" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-3​ 박스플롯, 스캐터플롯 해석</h2>
+<h2>4-3​ 박스플롯, 스캐터플롯 해석</h2>
 <div class="columns">
 <div class="column" style="margin-top: 0px;">
-<div id="0aa2e218" class="cell" data-execution_count="24">
+<div id="d82dcef0" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>data[data[<span class="st">"engines"</span>] <span class="op">==</span> <span class="dv">3</span>][<span class="st">"seats"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="134">
+<div class="cell-output cell-output-display" data-execution_count="88">
 <pre><code>count      7.000000
 mean     169.285714
 std      196.169752
@@ -814,7 +816,7 @@ Name: seats, dtype: float64</code></pre>
 </li>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="c1bd391c" class="cell" data-execution_count="25">
+<div id="b2b6d381" class="cell" data-execution_count="25">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -826,12 +828,12 @@ Name: seats, dtype: float64</code></pre>
 </div></div>
 </section>
 <section id="박스플롯-스캐터플롯-해석-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-3​ 박스플롯, 스캐터플롯 해석</h2>
+<h2>4-3​ 박스플롯, 스캐터플롯 해석</h2>
 <div class="columns">
 <div class="column" style="margin-top: 15px;">
-<div id="547673a4" class="cell" data-execution_count="26">
+<div id="d513cc06" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>data[data[<span class="st">"engines"</span>] <span class="op">==</span> <span class="dv">4</span>][<span class="st">"seats"</span>].describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="136">
+<div class="cell-output cell-output-display" data-execution_count="90">
 <pre><code>count    133.000000
 mean      69.586466
 std      128.463008
@@ -855,7 +857,7 @@ Name: seats, dtype: float64</code></pre>
 </li>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="fddfbbdf" class="cell" data-execution_count="27">
+<div id="3b4f0c61" class="cell" data-execution_count="27">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -867,8 +869,8 @@ Name: seats, dtype: float64</code></pre>
 </div></div>
 </section>
 <section id="왜-예상과-다를까" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-4.​ 왜 예상과 다를까?</h2>
-<div id="e2fc5736" class="cell" data-execution_count="28">
+<h2>4-4.​ 왜 예상과 다를까?</h2>
+<div id="baf9d101" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href=""></a>d <span class="op">=</span> data.loc[</span>
 <span id="cb21-2"><a href=""></a>    (data[<span class="st">'engines'</span>] <span class="op">&gt;=</span> <span class="dv">3</span>) <span class="op">&amp;</span> (data[<span class="st">'seats'</span>] <span class="op">&lt;=</span> <span class="dv">120</span>), </span>
 <span id="cb21-3"><a href=""></a>    [<span class="st">'engines'</span>, <span class="st">'manufacturer'</span>, <span class="st">'model'</span>, <span class="st">'seats'</span>]</span>
@@ -884,7 +886,7 @@ Name: seats, dtype: float64</code></pre>
 </div>
 </section>
 <section id="왜-예상과-다를까-1" class="slide level2" data-background-image="assets/bg.png">
-<h2>6-4.​ 왜 예상과 다를까?</h2>
+<h2>4-4.​ 왜 예상과 다를까?</h2>
 <div class="panel-tabset" style="font-size: 2px;">
 <ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">MYSTERE FALCON 900</a></li><li><a href="#tabset-1-2">CF-5D</a></li><li><a href="#tabset-1-3">DC-7BF</a></li></ul>
 <div class="tab-content" style="font-size: 2px;">
@@ -907,8 +909,11 @@ Name: seats, dtype: float64</code></pre>
 </section>
 <section id="결론" class="slide level2" data-background-image="assets/bg.png">
 <h2>💡 결론</h2>
-<h4 id="비행기-지연에는-시간-계절-날씨-등-다양한-요인이-존재한다.">비행기 지연에는 시간, 계절, 날씨 등 다양한 요인이 존재한다.</h4>
-<h4 id="데이터-분석을-할-때-한가지-요인이-아닌-다양한-요인을-분석하는-것이-중요하다.">데이터 분석을 할 때 한가지 요인이 아닌 다양한 요인을 분석하는 것이 중요하다.</h4>
+<h4 id="비행기-출발-지연에는-시간-계절-날씨-등-다양한-요인이-존재한다.">비행기 출발 지연에는 시간, 계절, 날씨 등 다양한 요인이 존재한다.</h4>
+<h4 id="따라서-데이터-분석을-할-때-한가지-요인이-아닌-다양한-요인을-분석하는-것이-중요하다.">따라서, 데이터 분석을 할 때 한가지 요인이 아닌 다양한 요인을 분석하는 것이 중요하다.</h4>
+<div class="fragment">
+<h4 id="출발-지연을-피하고-행복한-여행을-보내고-싶으신-분들은-가을-아침-맑은날을-추천드립니다"><span style="color: #fb7185;">출발 지연을 피하고 행복한 여행을 보내고 싶으신 분들은 가을 아침 맑은날을 추천드립니다 !</span></h4>
+</div>
 
 </section>
     </div>
