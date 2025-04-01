@@ -4,12 +4,26 @@
 
 ## 참여 인원
 
-| <img src="./readme/seoyeon.jpg" width="100px;" height="100px;"> | <img src="./readme/minchae.jpg" width="100px;" height="100px;"> | <img src="./readme/jaewon.jpg" width="100px;" height="100px;"> | <img src="./readme/sangwon.jpg" width="100px;" height="100px;"> |
-| :-------------------------------------------------------------: | :-------------------------------------------------------------: | :------------------------------------------------------------: | :-------------------------------------------------------------: |
-|                             권서연                              |                             김민채                              |                             박재원                             |                             오상원                              |
-|         -엔진개수와 좌석수<br> 관계 분석<br> - QMD 제작         |       - 시간대별 <br>지연시간 분석 <br> - QMD 제작 및 CSS       |             - 날씨와 <br>지연시간 분석 <br> - 발표             |             - 계절별<br> 지연시간<br> 조사 및 발표              |
-
-<br>
+<table style="text-align:center; width:100%;">
+  <tr>
+    <td><img src="./readme/seoyeon.jpg" width="100px;" height="100px;"></td>
+    <td><img src="./readme/minchae.jpg" width="100px;" height="100px;"></td>
+    <td><img src="./readme/jaewon.jpg" width="100px;" height="100px;"></td>
+    <td><img src="./readme/sangwon.jpg" width="100px;" height="100px;"></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/9-1333">권서연</a></td>
+    <td><a href="https://github.com/k1minchae">김민채</a></td>
+    <td><a href="https://github.com/jaewon03561">박재원</a></td>
+    <td><a href="https://github.com/osangwon">오상원</a></td>
+  </tr>
+  <tr>
+    <td>-엔진개수와 좌석수 관계 분석 - QMD 제작</td>
+    <td>- 시간대별 지연시간 분석 - QMD 제작 및 CSS</td>
+    <td>- 날씨와 지연시간 분석 - 발표</td>
+    <td>- 계절별 지연시간 조사 및 발표</td>
+  </tr>
+</table>
 
 ## 환경 설정하기
 
